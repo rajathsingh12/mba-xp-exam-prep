@@ -114,6 +114,55 @@ const html = `<!DOCTYPE html>
     --max-width: 52rem;
   }
 
+  /* ---- Dark theme (Bear Shibuya Jazz inspired) ---- */
+  [data-theme="dark"] {
+    --page-bg: #1e1e24;
+    --text: #d8d8d8;
+    --text-light: #9a9a9a;
+    --accent: #5fb4b4;
+    --accent-light: #5fb4b4;
+    --border: #3a3a42;
+    --code-bg: #27272e;
+    --table-stripe: #24242b;
+    --highlight: #2a2a32;
+    --chapter-bg: #1e1e24;
+    --sidebar-bg: #18181e;
+    --sidebar-active: #5fb4b4;
+  }
+  [data-theme="dark"] a { color: #d4a857; }
+  [data-theme="dark"] th { background: #2e3d3d; color: #d8d8d8; }
+  [data-theme="dark"] .nav-file:hover,
+  [data-theme="dark"] .nav-file.active { background: #5fb4b4; color: #1e1e24; }
+  [data-theme="dark"] .module-toggle:hover { background: rgba(95,180,180,0.1); }
+  [data-theme="dark"] .back-to-top { background: #5fb4b4; color: #1e1e24; }
+  [data-theme="dark"] blockquote { background: #27272e; border-left-color: #5fb4b4; }
+  [data-theme="dark"] code { color: #5fb4b4; background: #27272e; }
+
+  /* ---- Controls bar ---- */
+  .controls {
+    display: flex;
+    gap: 0.4rem;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.8rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .ctrl-btn {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.78rem;
+    font-family: 'Crimson Pro', serif;
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.15s;
+    line-height: 1;
+  }
+  .ctrl-btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .ctrl-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .ctrl-sep { width: 1px; height: 1.2rem; background: var(--border); margin: 0 0.2rem; }
+
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   html {
@@ -429,6 +478,13 @@ const html = `<!DOCTYPE html>
 ${tocHtml}
     </ul>
   </nav>
+  <div class="controls">
+    <button class="ctrl-btn" id="themeToggle" title="Toggle dark/light theme">🌙</button>
+    <div class="ctrl-sep"></div>
+    <button class="ctrl-btn" id="fontMinus" title="Decrease font size">A−</button>
+    <span id="fontLabel" style="font-size:0.72rem;color:var(--text-light);min-width:2.5rem;text-align:center;">100%</span>
+    <button class="ctrl-btn" id="fontPlus" title="Increase font size">A+</button>
+  </div>
   <div class="progress-bar">
     <span id="progressLabel">0% read</span>
     <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
@@ -503,6 +559,32 @@ window.addEventListener('scroll', onScroll, { passive: true });
 onScroll();
 
 backToTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+// Theme toggle
+const themeBtn = document.getElementById('themeToggle');
+function setTheme(t) {
+  document.documentElement.setAttribute('data-theme', t);
+  themeBtn.textContent = t === 'dark' ? '☀️' : '🌙';
+  localStorage.setItem('theme', t);
+}
+// Restore saved preference or default to light
+setTheme(localStorage.getItem('theme') || 'light');
+themeBtn.addEventListener('click', () => {
+  setTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+});
+
+// Font size controls
+const fontLabel = document.getElementById('fontLabel');
+const BASE = 17;
+let fontPct = parseInt(localStorage.getItem('fontPct') || '100');
+function applyFont() {
+  document.documentElement.style.fontSize = (BASE * fontPct / 100) + 'px';
+  fontLabel.textContent = fontPct + '%';
+  localStorage.setItem('fontPct', fontPct);
+}
+applyFont();
+document.getElementById('fontPlus').addEventListener('click', () => { fontPct = Math.min(150, fontPct + 10); applyFont(); });
+document.getElementById('fontMinus').addEventListener('click', () => { fontPct = Math.max(70, fontPct - 10); applyFont(); });
 </script>
 
 </body>
