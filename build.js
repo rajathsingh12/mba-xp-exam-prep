@@ -113,7 +113,7 @@ const html = `<!DOCTYPE html>
     --chapter-bg: #ffffff;
     --sidebar-bg: #f0ebe3;
     --sidebar-active: #8b4513;
-    --max-width: 52rem;
+    --max-width: 100%;
   }
 
   /* ---- Dark theme (Bear Shibuya Jazz inspired) ---- */
@@ -290,7 +290,9 @@ const html = `<!DOCTYPE html>
     margin-left: 300px;
     flex: 1;
     padding: 2rem 2.5rem 4rem;
-    max-width: calc(var(--max-width) + 5rem);
+    min-width: 0;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
   }
 
   .chapter {
@@ -350,6 +352,8 @@ const html = `<!DOCTYPE html>
     margin: 1rem 0;
     font-size: 0.92rem;
     line-height: 1.5;
+    table-layout: fixed;
+    word-wrap: break-word;
   }
   th {
     background: var(--accent);
@@ -386,6 +390,9 @@ const html = `<!DOCTYPE html>
     margin: 1rem 0;
     line-height: 1.5;
     font-size: 0.8rem;
+    max-width: 100%;
+    white-space: pre-wrap;
+    word-wrap: break-word;
   }
   pre code { background: none; padding: 0; color: var(--text); }
 
