@@ -51,7 +51,9 @@ const modules = moduleDirs.map(dir => {
     let label = h1Match ? h1Match[1].replace(/\s*—.*$/, '').trim() : f.replace('.md', '');
     // Clean up label
     label = label.replace(/-/g, ' ').replace(/plain english$/i, '').trim();
-    if (label.length > 60) label = label.substring(0, 57) + '...';
+    // If it's an exam file, override the label
+    if (f.includes('exam-questions')) label = `Exam Questions for Module ${num}`;
+    if (label.length > 65) label = label.substring(0, 62) + '...';
     return { filename: f, label, html };
   });
 
@@ -138,14 +140,18 @@ const html = `<!DOCTYPE html>
   [data-theme="dark"] blockquote { background: #27272e; border-left-color: #5fb4b4; }
   [data-theme="dark"] code { color: #5fb4b4; background: #27272e; }
 
-  /* ---- Controls bar ---- */
+  /* ---- Controls bar (pinned to sidebar bottom) ---- */
   .controls {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
     display: flex;
     gap: 0.4rem;
     align-items: center;
-    margin-bottom: 1rem;
-    padding-bottom: 0.8rem;
-    border-bottom: 1px solid var(--border);
+    padding: 0.8rem 1rem;
+    border-top: 1px solid var(--border);
+    background: var(--sidebar-bg);
   }
   .ctrl-btn {
     background: none;
@@ -189,7 +195,7 @@ const html = `<!DOCTYPE html>
     background: var(--sidebar-bg);
     border-right: 1px solid var(--border);
     overflow-y: auto;
-    padding: 1.5rem 1rem;
+    padding: 1.5rem 1rem 3.5rem;
     z-index: 100;
     transition: transform 0.3s ease;
   }
@@ -260,27 +266,6 @@ const html = `<!DOCTYPE html>
   .nav-file:hover, .nav-file.active {
     background: var(--accent);
     color: #fff;
-  }
-  .sidebar .progress-bar {
-    margin-top: 1rem;
-    padding-top: 0.8rem;
-    border-top: 1px solid var(--border);
-    font-size: 0.74rem;
-    color: var(--text-light);
-  }
-  .sidebar .progress-track {
-    height: 4px;
-    background: var(--border);
-    border-radius: 2px;
-    margin-top: 0.3rem;
-    overflow: hidden;
-  }
-  .sidebar .progress-fill {
-    height: 100%;
-    background: var(--accent);
-    border-radius: 2px;
-    width: 0%;
-    transition: width 0.3s;
   }
 
   /* ---- Mobile toggle ---- */
@@ -485,10 +470,6 @@ ${tocHtml}
     <span id="fontLabel" style="font-size:0.72rem;color:var(--text-light);min-width:2.5rem;text-align:center;">100%</span>
     <button class="ctrl-btn" id="fontPlus" title="Increase font size">A+</button>
   </div>
-  <div class="progress-bar">
-    <span id="progressLabel">0% read</span>
-    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
-  </div>
 </aside>
 
 <main class="main">
@@ -521,16 +502,10 @@ document.querySelectorAll('.module-toggle').forEach(btn => {
 // Scroll tracking
 const chapters = [...document.querySelectorAll('.chapter')];
 const navLinks = [...sidebar.querySelectorAll('.nav-file')];
-const progressFill = document.getElementById('progressFill');
-const progressLabel = document.getElementById('progressLabel');
 const backToTop = document.getElementById('backToTop');
 
 function onScroll() {
   const scrollTop = window.scrollY;
-  const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-  const pct = docHeight > 0 ? Math.round((scrollTop / docHeight) * 100) : 0;
-  progressFill.style.width = pct + '%';
-  progressLabel.textContent = pct + '% read';
 
   // Active section
   let current = 0;
@@ -575,7 +550,7 @@ themeBtn.addEventListener('click', () => {
 
 // Font size controls
 const fontLabel = document.getElementById('fontLabel');
-const BASE = 17;
+const BASE = 20;
 let fontPct = parseInt(localStorage.getItem('fontPct') || '100');
 function applyFont() {
   document.documentElement.style.fontSize = (BASE * fontPct / 100) + 'px';
