@@ -38,8 +38,8 @@ const modules = moduleDirs.map(dir => {
   const mdFiles = fs.readdirSync(path.join(DIR, dir))
     .filter(f => f.endsWith('.md'))
     .sort((a, b) => {
-      if (a.includes('exam-questions')) return 1;
-      if (b.includes('exam-questions')) return -1;
+      if (a.toLowerCase().includes('exam-questions')) return 1;
+      if (b.toLowerCase().includes('exam-questions')) return -1;
       return a.localeCompare(b);
     });
 
@@ -52,7 +52,7 @@ const modules = moduleDirs.map(dir => {
     // Clean up label
     label = label.replace(/-/g, ' ').replace(/plain english$/i, '').trim();
     // If it's an exam file, override the label
-    if (f.includes('exam-questions')) label = `Exam Questions for Module ${num}`;
+    if (f.toLowerCase().includes('exam-questions') || f.toLowerCase().includes('exam_questions')) label = `Exam Questions for Module ${num}`;
     if (label.length > 65) label = label.substring(0, 62) + '...';
     return { filename: f, label, html };
   });
@@ -215,7 +215,12 @@ const html = `<!DOCTYPE html>
     border-bottom: 1px solid var(--border);
   }
   .sidebar nav > ul { list-style: none; }
-  .nav-module { margin-bottom: 0.5rem; }
+  .nav-module {
+    margin-bottom: 0.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-module:last-child { border-bottom: none; }
   .module-toggle {
     display: block;
     width: 100%;
