@@ -195,7 +195,7 @@ const html = `<!DOCTYPE html>
     background: var(--sidebar-bg);
     border-right: 1px solid var(--border);
     overflow-y: auto;
-    padding: 1.5rem 1rem 3.5rem;
+    padding: 1.5rem 0.6rem 3.5rem;
     z-index: 100;
     transition: transform 0.3s ease;
   }
@@ -553,6 +553,17 @@ function setTheme(t) {
   document.documentElement.setAttribute('data-theme', t);
   themeBtn.textContent = t === 'dark' ? '☀️' : '🌙';
   localStorage.setItem('theme', t);
+  // Re-init mermaid with matching theme
+  if (typeof mermaid !== 'undefined') {
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: t === 'dark' ? 'dark' : 'default',
+      themeVariables: t === 'dark' ? { primaryColor: '#2e3d3d', primaryTextColor: '#d8d8d8', lineColor: '#5fb4b4', secondaryColor: '#27272e' } : {},
+    });
+    document.querySelectorAll('.mermaid[data-processed]').forEach(el => { el.removeAttribute('data-processed'); });
+    document.querySelectorAll('.mermaid svg').forEach(svg => svg.remove());
+    mermaid.run();
+  }
 }
 // Restore saved preference or default to light
 setTheme(localStorage.getItem('theme') || 'light');
@@ -572,6 +583,25 @@ function applyFont() {
 applyFont();
 document.getElementById('fontPlus').addEventListener('click', () => { fontPct = Math.min(150, fontPct + 10); applyFont(); });
 document.getElementById('fontMinus').addEventListener('click', () => { fontPct = Math.max(70, fontPct - 10); applyFont(); });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>
+// Initialize Mermaid diagrams
+// Convert <code class="language-mermaid"> blocks into rendered diagrams
+document.querySelectorAll('code.language-mermaid').forEach((block, i) => {
+  const pre = block.parentElement;
+  const div = document.createElement('div');
+  div.className = 'mermaid';
+  div.textContent = block.textContent;
+  pre.replaceWith(div);
+});
+const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+mermaid.initialize({
+  startOnLoad: true,
+  theme: isDark ? 'dark' : 'default',
+  themeVariables: isDark ? { primaryColor: '#2e3d3d', primaryTextColor: '#d8d8d8', lineColor: '#5fb4b4', secondaryColor: '#27272e' } : {},
+});
 </script>
 
 </body>
